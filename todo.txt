@@ -1,0 +1,5 @@
+1. Add route for login by email link
+2. add route for login by gmail
+3. use custom database to save user details
+4. add route for login by email and password- DONE
+5. add forgot password functionality

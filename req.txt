@@ -1,0 +1,4 @@
+FastAPI
+uvicorn
+firebase_admin
+pyrebase4
