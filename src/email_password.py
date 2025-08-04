@@ -1,34 +1,22 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from fastapi.requests import Request
+from firebase_admin import auth
+
+from dotenv import load_dotenv
+
+load_dotenv()
+import os
+
+
+from fastapi import Request
+import requests
 from loguru import logger
-import uvicorn
-import firebase_admin
-from firebase_admin import credentials, auth
-import pyrebase
+from src import firebase
+from src.models import UserSignUp, UserLogin, EmailRequest
+app=APIRouter()
 
-from models import UserSignUp, UserLogin
-
-app=FastAPI(docs_url="/")
-
-if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_auth_key.json")
-    firebase_admin.initialize_app(cred)
-
-
-# For Firebase JS SDK v7.20.0 and later, measurementId is optional
-firebaseConfig = {
-"apiKey": "AIzaSyBRBmltDdJViBxgWWfjNosemegDIByM9Ik",
-"authDomain": "fastapi-auth-f9e5d.firebaseapp.com",
-"projectId": "fastapi-auth-f9e5d",
-"storageBucket": "fastapi-auth-f9e5d.firebasestorage.app",
-"messagingSenderId": "324218522798",
-"appId": "1:324218522798:web:f403b9ea9143e0fb0c313f",
-"measurementId": "G-J8R0KT9391",
-"databaseURL": ""
-}
-firebase=pyrebase.initialize_app(firebaseConfig)
+FIREBASE_API_KEY = os.getenv("API_KEY")
 
 @app.get('/get_all_emails')
 def all_emails():
@@ -37,6 +25,30 @@ def all_emails():
     for user in users.users:
         emails.append(user.email)
     return emails
+
+
+def reset_password_mail(email: str):
+    try:
+        url=f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
+        payload={
+            "requestType": "PASSWORD_RESET",
+            "email": email,
+        }
+
+        response=requests.post(url=url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+@app.post("/reset_password")
+def reset_password(email: EmailRequest):
+    try:
+        mail=email.email
+        result=reset_password_mail(mail)
+        return JSONResponse(content={"message": f"Password Reset Email sent to {mail}"})
+    except requests.HTTPError as e:
+        return HTTPException(status_code=400, detail=e.response.json())
+
 @app.post('/signup')
 def create_user(user:UserSignUp):
     print(user.email)
@@ -75,6 +87,3 @@ def validate_key(request:Request):
     user=auth.verify_id_token(id_token=jwt)
 
     return user["user_id"]
-
-if __name__== "__main__":
-    uvicorn.run("main:app")

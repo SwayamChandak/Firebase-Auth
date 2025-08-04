@@ -22,3 +22,6 @@ class UserLogin(BaseModel):
                     "password": "sample_pass"
                 }
         }
+
+class EmailRequest(BaseModel):
+    email: str
