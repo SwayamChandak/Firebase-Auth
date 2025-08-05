@@ -1,6 +1,61 @@
+FIREBASE
 1. Add route for login by email link
-2. add route for login by gmail
-3. use custom database to save user details
+2. add route for login by gmail- DONE in index.html file and in backend
+    a. Problem with understanding id_token, googleID, uid
+    b. CORS issue, sending data from frontend
+    c. Forgot to switch on google sign in method in firebase console
+    d. token used too early, difference in timing of system and browser- should IDEALLY sync pc time, although my pc time is correct. added timeout of 3seconds before sending token to backend
+    e. google pop up not working
+    f. auto sign in with pre entered mail, not allowing me to add new mailID in pop up window- added prompt of "select account" before popup window
+
+
+
+3. use custom database to save user details- just add db and store there as well
 4. add route for login by email and password- DONE
 5. add forgot password functionality-DONE
     a. use camelCase for Firebase. underscore_separated_words don't work
+6. Add custom mailID for forgot password mail
+
+
+
+BACKEND APP
+1. Add payment gateway, e.g. scripe. learn why scripe over others
+2. File Compression and Storage API
+    Purpose: Provide REST API to upload files, compress them (ZIP/GZIP), and store for retrieval.
+
+    Core Functions:
+    POST /upload: Accept files, compress them using server-side logic.
+    Store compressed files in S3/minio/local FS.
+    Save metadata in PostgreSQL (filename, compression ratio, owner, timestamps).
+    GET /download/{file_id}: Serve the compressed file with download headers.
+
+    Optional: background compression via Celery/RQ.
+    Tech Stack: Django/FastAPI, Celery, PostgreSQL, S3-compatible storage, zlib/patool.
+3. Secure Notes Storage with Expiry
+
+    Integrate with scholar share
+    Purpose: Allow users to store sensitive notes securely with automatic deletion after a specified time.
+
+    Core Features:
+    POST /notes: Accept note content, optional expiry time (e.g., 1 hour, 1 day).
+    Encrypt note content server-side using AES or Fernet before storage.
+    Generate a unique ID or access token for retrieval.
+    Store encrypted content, creation timestamp, and expiry in PostgreSQL.
+    GET /notes/{id}: Decrypt and return note if it hasn't expired; else return 410 Gone.
+    Background job (Celery/RQ) to periodically delete expired notes.
+
+    Optional Enhancements:
+    One-time view (note deletes after first read).
+    Add role based access. generate schema better than scholar share
+    Password-protected notes.
+    Burn-after-read timer.
+    Rate limiting to prevent abuse.
+
+    Tech Stack: FastAPI/Django, PostgreSQL, cryptography library, Celery, Redis (for task queue).
+
+4. add celery for background tasks, maybe sending a mail
+
+
+
+EXTRAS
+1. Redo scholar share, with postgres, better schema, firebase auth, expiry of files after xyz time

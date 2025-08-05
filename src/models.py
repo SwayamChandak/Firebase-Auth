@@ -25,3 +25,11 @@ class UserLogin(BaseModel):
 
 class EmailRequest(BaseModel):
     email: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str | None = None
+    login_type: str  # 'email' or 'google'
+    id_token: str | None = None
+    name: str | None = None
+    google_id: str | None = None

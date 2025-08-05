@@ -13,7 +13,7 @@ from fastapi import Request
 import requests
 from loguru import logger
 from src import firebase
-from src.models import UserSignUp, UserLogin, EmailRequest
+from src.models import UserSignUp, UserLogin, EmailRequest, LoginRequest
 app=APIRouter()
 
 FIREBASE_API_KEY = os.getenv("API_KEY")
@@ -66,6 +66,7 @@ def create_user(user:UserSignUp):
     except auth.EmailAlreadyExistsError as e:
         logger.error(str(e))
         return HTTPException(status_code=400, detail=str(e))
+
 
 @app.post('/login')
 def get_access_key(user:UserLogin):
